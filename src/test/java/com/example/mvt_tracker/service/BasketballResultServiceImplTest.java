@@ -50,7 +50,7 @@ public class BasketballResultServiceImplTest {
         teamScores.put("Team B", 88);
         teamScores.put("Team C", 76);
 
-        String winningTeam = basketballResultService.getWinningTeam(teamScores);
+        String winningTeam = basketballResultService.getWinningTeam(teamScores).get();
 
         assertEquals("Team B", winningTeam);
     }

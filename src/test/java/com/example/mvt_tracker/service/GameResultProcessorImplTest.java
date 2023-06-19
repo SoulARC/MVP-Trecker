@@ -1,82 +1,62 @@
 package com.example.mvt_tracker.service;
 
 import com.example.mvt_tracker.exception.IncorrectFormatException;
+import com.example.mvt_tracker.service.enums.Games;
 import com.example.mvt_tracker.service.impl.GameResultProcessorImpl;
 import com.example.mvt_tracker.util.CSVReader;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
 
-public class GameResultProcessorImplTest {
-    private static final String TEST_FILE_PATH = "CSVReaderTest.csv";
+class GameResultProcessorImplTest {
 
-    @Test
-    public void testGameStrategyWhenGameNameIsBasketball_ok() throws IncorrectFormatException {
-        CSVReader csvReader = Mockito.mock(CSVReader.class);
-        BasketballResultService basketballResultService = Mockito.mock(BasketballResultService.class);
-        HandballResultService handballResultService = Mockito.mock(HandballResultService.class);
+    @Mock
+    private CSVReader csvReader;
 
-        GameResultProcessorImpl gameResultProcessor = new GameResultProcessorImpl(
-                csvReader, basketballResultService, handballResultService);
+    @Mock
+    private ResultService basketballResultService;
 
-        List<String[]> inputData = new ArrayList<>();
-        String[] gameInfo = { "BASKETBALL" };
-        inputData.add(gameInfo);
+    @Mock
+    private ResultService handballResultService;
 
-        Mockito.when(csvReader.readData(anyString())).thenReturn(inputData);
+    private final GameResultProcessorImpl gameResultProcessor;
 
-        gameResultProcessor.gameStrategy(TEST_FILE_PATH);
-
-        Mockito.verify(basketballResultService, Mockito.times(1)).calculateResult(Mockito.anyList());
-        Mockito.verify(handballResultService, Mockito.times(0)).calculateResult(Mockito.anyList());
+    public GameResultProcessorImplTest() {
+        MockitoAnnotations.openMocks(this);
+        gameResultProcessor = new GameResultProcessorImpl(csvReader, basketballResultService, handballResultService);
     }
 
     @Test
-    public void testGameStrategyWhenGameNameIsHandball_ok() throws IncorrectFormatException {
-        CSVReader csvReader = Mockito.mock(CSVReader.class);
-        BasketballResultService basketballResultService = Mockito.mock(BasketballResultService.class);
-        HandballResultService handballResultService = Mockito.mock(HandballResultService.class);
+    void gameStrategyHasValidGameName_ok() throws IncorrectFormatException {
+        String filePath = "data.csv";
+        String gameName = Games.BASKETBALL.name();
+        String[] gameNameRow = {gameName};
+        when(csvReader.readData(filePath)).thenReturn( new ArrayList<>(Collections.singleton(gameNameRow)));
 
-        GameResultProcessorImpl gameResultProcessor = new GameResultProcessorImpl(
-                csvReader, basketballResultService, handballResultService);
+        gameResultProcessor.gameStrategy(filePath);
 
-        List<String[]> inputData = new ArrayList<>();
-        String[] gameInfo = { "HANDBALL" };
-        inputData.add(gameInfo);
-
-        Mockito.when(csvReader.readData(anyString())).thenReturn(inputData);
-
-        gameResultProcessor.gameStrategy(TEST_FILE_PATH);
-
-        Mockito.verify(basketballResultService, Mockito.times(0)).calculateResult(Mockito.anyList());
-        Mockito.verify(handballResultService, Mockito.times(1)).calculateResult(Mockito.anyList());
+        verify(basketballResultService, times(1)).calculateResult(anyList());
+        verify(handballResultService, never()).calculateResult(anyList());
     }
 
     @Test
-    public void testGameStrategyWhenGameNameIsInvalid_notOk() {
-        CSVReader csvReader = Mockito.mock(CSVReader.class);
-        BasketballResultService basketballResultService = Mockito.mock(BasketballResultService.class);
-        HandballResultService handballResultService = Mockito.mock(HandballResultService.class);
+    void gameStrategyHasInvalidGameName_notOk() {
+        String filePath = "data.csv";
+        String gameName = "InvalidGame";
+        String[] gameNameRow = {gameName};
+        when(csvReader.readData(filePath)).thenReturn( new ArrayList<>(Collections.singleton(gameNameRow)));
 
-        GameResultProcessorImpl gameResultProcessor = new GameResultProcessorImpl(
-                csvReader, basketballResultService, handballResultService);
+        assertThrows(IncorrectFormatException.class, () -> gameResultProcessor.gameStrategy(filePath));
 
-        List<String[]> inputData = new ArrayList<>();
-        String[] gameInfo = { "invalidGame" };
-        inputData.add(gameInfo);
-
-        Mockito.when(csvReader.readData(anyString())).thenReturn(inputData);
-
-        Assertions.assertThrows(IncorrectFormatException.class, () -> {
-            gameResultProcessor.gameStrategy(TEST_FILE_PATH);
-        });
-
-        Mockito.verify(basketballResultService, Mockito.times(0)).calculateResult(Mockito.anyList());
-        Mockito.verify(handballResultService, Mockito.times(0)).calculateResult(Mockito.anyList());
+        verify(basketballResultService, never()).calculateResult(anyList());
+        verify(handballResultService, never()).calculateResult(anyList());
     }
 }

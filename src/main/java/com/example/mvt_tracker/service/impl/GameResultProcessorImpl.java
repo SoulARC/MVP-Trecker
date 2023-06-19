@@ -3,15 +3,15 @@ package com.example.mvt_tracker.service.impl;
 import com.example.mvt_tracker.exception.IncorrectFormatException;
 import com.example.mvt_tracker.service.GameResultProcessor;
 import com.example.mvt_tracker.service.ResultService;
-import com.example.mvt_tracker.service.enums.Games;
 import com.example.mvt_tracker.util.CSVReader;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import java.util.HashMap;
+
 import java.util.List;
 import java.util.Map;
-
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -22,13 +22,18 @@ public class GameResultProcessorImpl implements GameResultProcessor {
 
     public GameResultProcessorImpl(
             CSVReader csvReader,
-            @Qualifier("basketballResultServiceImpl") ResultService basketballResultService,
-            @Qualifier("handballResultServiceImpl") ResultService handballResultService
+            List<ResultService> resultServices
     ) {
         this.csvReader = csvReader;
-        this.resultServiceMap = new HashMap<>();
-        resultServiceMap.put(Games.BASKETBALL.name(), basketballResultService);
-        resultServiceMap.put(Games.HANDBALL.name(), handballResultService);
+        this.resultServiceMap = resultServices.stream()
+                .collect(Collectors.toMap(ResultService::getGame, Function.identity()));
+    }
+
+    @PostConstruct
+    public void initialize() {
+        if (resultServiceMap.isEmpty()) {
+            throw new IllegalStateException("No ResultService implementations found");
+        }
     }
 
     @Override

@@ -32,12 +32,3 @@ public class MvtTrackerApplication implements CommandLineRunner {
         System.out.println("SCORE: " + mvp.getRatingPoints());
     }
 }
-
-
-
-
-
-
-
-
-

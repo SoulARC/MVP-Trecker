@@ -9,6 +9,7 @@ import com.example.mvt_tracker.service.PlayerDataValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,17 +50,14 @@ public class BasketballResultServiceImpl implements ResultService {
         return Games.BASKETBALL.name();
     }
 
-    @Override
     public Optional<String> getWinningTeam(Map<String, Integer> teamScores) {
-        Optional<Map.Entry<String, Integer>> maxEntry = teamScores.entrySet()
-                .stream()
-                .max(Map.Entry.comparingByValue());
-
-        return maxEntry.map(Map.Entry::getKey);
+        return teamScores.entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey);
     }
 
     @Override
-    public void validateFormat(String[] inputRow) {
+    public void formatValidation(String[] inputRow) {
         if (inputRow.length != BASKETBALL_ROW_COUNT || namingValidator.namingValidation(inputRow)) {
             try {
                 throw new IncorrectFormatException("The file has an incorrect format");
@@ -79,20 +77,15 @@ public class BasketballResultServiceImpl implements ResultService {
             int rebounds = Integer.parseInt(playerData[REBOUNDS_INDEX]);
             int assists = Integer.parseInt(playerData[ASSISTS_INDEX]);
             int totalPoints = score + rebounds + assists;
-
-            if (teamName.equals(winningTeam)) {
-                totalPoints += WINNER_BONUS;
-            }
+            totalPoints += teamName.equals(winningTeam)
+                           ? WINNER_BONUS
+                           : 0;
 
             Player player = playerDao.findPlayerByNickname(nickname);
-            if (player != null) {
-                int ratingPoints = player.getRatingPoints() + totalPoints;
-                playerDao.editRatingPointsByNickname(nickname, ratingPoints);
-            }
-            else {
-                player = new Player(nickname, totalPoints);
-                playerDao.save(nickname, player);
-            }
+            int ratingPoints = (player != null)
+                               ? player.getRatingPoints() + totalPoints
+                               : totalPoints;
+            playerDao.saveOrUpdatePlayer(new Player(nickname, ratingPoints));
         }
     }
 
@@ -100,7 +93,7 @@ public class BasketballResultServiceImpl implements ResultService {
     public Map<String, Integer> calculateTeamPoints(List<String[]> gameData) {
         Map<String, Integer> teamScore = new HashMap<>();
         for (String[] playerData : gameData) {
-            validateFormat(playerData);
+            formatValidation(playerData);
             String teamName = playerData[TEAM_NAME_INDEX];
             int score = Integer.parseInt(playerData[SCORED_POINTS_INDEX]) * MULTIPLIER_SCORED_POINT;
             int rebounds = Integer.parseInt(playerData[REBOUNDS_INDEX]);
@@ -108,7 +101,6 @@ public class BasketballResultServiceImpl implements ResultService {
             int totalPoints = score + rebounds + assists;
             teamScore.put(teamName, teamScore.getOrDefault(teamName, 0) + totalPoints);
         }
-
         return teamScore;
     }
 }

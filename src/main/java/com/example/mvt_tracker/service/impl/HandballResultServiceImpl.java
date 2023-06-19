@@ -7,6 +7,7 @@ import com.example.mvt_tracker.service.ResultService;
 import com.example.mvt_tracker.service.enums.Games;
 import com.example.mvt_tracker.service.PlayerDataValidator;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -48,15 +49,14 @@ public class HandballResultServiceImpl implements ResultService {
 
     @Override
     public Optional<String> getWinningTeam(Map<String, Integer> teamScores) {
-        Optional<Map.Entry<String, Integer>> maxEntry = teamScores.entrySet()
+        return teamScores.entrySet()
                 .stream()
-                .max(Map.Entry.comparingByValue());
-
-        return maxEntry.map(Map.Entry::getKey);
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey);
     }
 
     @Override
-    public void validateFormat(String[] inputRow) {
+    public void formatValidation(String[] inputRow) {
         if (inputRow.length != HANDBALL_ROW_COUNT || namingValidator.namingValidation(inputRow)) {
             try {
                 throw new IncorrectFormatException("The file has an incorrect format");
@@ -75,20 +75,15 @@ public class HandballResultServiceImpl implements ResultService {
             int goalsMade = Integer.parseInt(playerData[GOAL_MADE_INDEX]) * MULTIPLIER_GOAL_MADE_POINT;
             int goalsReceived = Integer.parseInt(playerData[GOAL_RECEIVED_INDEX]);
             int totalPoints = goalsMade - goalsReceived;
-
-            if (teamName.equals(winningTeam)) {
-                totalPoints += WINNER_BONUS;
-            }
+            totalPoints += teamName.equals(winningTeam)
+                           ? WINNER_BONUS
+                           : 0;
 
             Player player = playerDao.findPlayerByNickname(nickname);
-            if (player != null) {
-                int ratingPoints = player.getRatingPoints() + totalPoints;
-                playerDao.editRatingPointsByNickname(nickname, ratingPoints);
-            }
-            else {
-                player = new Player(nickname, totalPoints);
-                playerDao.save(nickname, player);
-            }
+            int ratingPoints = (player != null)
+                               ? player.getRatingPoints() + totalPoints
+                               : totalPoints;
+            playerDao.saveOrUpdatePlayer(new Player(nickname, ratingPoints));
         }
     }
 
@@ -96,15 +91,13 @@ public class HandballResultServiceImpl implements ResultService {
     public Map<String, Integer> calculateTeamPoints(List<String[]> gameData) {
         Map<String, Integer> teamScore = new HashMap<>();
         for (String[] playerData : gameData) {
-
-            validateFormat(playerData);
+            formatValidation(playerData);
             String teamName = playerData[TEAM_NAME_INDEX];
             int goalMade = Integer.parseInt(playerData[GOAL_MADE_INDEX]) * MULTIPLIER_GOAL_MADE_POINT;
             int goalReceived = Integer.parseInt(playerData[GOAL_RECEIVED_INDEX]);
             int totalPoints = goalMade + goalReceived;
             teamScore.put(teamName, teamScore.getOrDefault(teamName, 0) + totalPoints);
         }
-
         return teamScore;
     }
 }

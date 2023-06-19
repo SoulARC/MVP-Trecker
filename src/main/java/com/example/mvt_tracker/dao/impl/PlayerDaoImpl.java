@@ -15,25 +15,8 @@ public class PlayerDaoImpl implements PlayerDao {
     private final Map<String, Player> players = new HashMap<>();
 
     @Override
-    public void save(String nickname, Player player) {
-        players.put(nickname, player);
-        log.info("Player {} is added", nickname);
-    }
-
-    @Override
     public Player findPlayerByNickname(String nickname) {
         return players.get(nickname);
-    }
-
-    @Override
-    public void editRatingPointsByNickname(String nickname, int ratingPoints) {
-        Player player = players.get(nickname);
-        if (player != null) {
-            player.setRatingPoints(ratingPoints);
-        }
-        else {
-            throw new IllegalArgumentException("Player not found with nickname: " + nickname);
-        }
     }
 
     @Override
@@ -44,5 +27,10 @@ public class PlayerDaoImpl implements PlayerDao {
     @Override
     public void deleteAll() {
         players.clear();
+    }
+    @Override
+    public void saveOrUpdatePlayer(Player player) {
+        players.put(player.getNickname(), player);
+        log.info("Player {} is saved or updated", player.getNickname());
     }
 }

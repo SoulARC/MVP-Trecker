@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @Slf4j
@@ -26,7 +27,7 @@ public class MVPServiceImpl implements MVPService {
 
         if (mvp == null) {
             log.error(ERROR_MESSAGE);
-            throw new IllegalStateException(ERROR_MESSAGE);
+            throw new NoSuchElementException(ERROR_MESSAGE);
         }
 
         return mvp;

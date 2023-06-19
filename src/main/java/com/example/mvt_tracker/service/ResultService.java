@@ -12,4 +12,8 @@ public interface ResultService {
     Optional<String> getWinningTeam(Map<String, Integer> teamScores);
 
     void validateFormat(String[] inputRow);
+
+    void calculatePlayerPoints(List<String[]> gameData, String winningTeam);
+
+    Map<String, Integer> calculateTeamPoints(List<String[]> gameData);
 }

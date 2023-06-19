@@ -3,7 +3,6 @@ package com.example.mvt_tracker.service.impl;
 import com.example.mvt_tracker.dao.PlayerDao;
 import com.example.mvt_tracker.exception.IncorrectFormatException;
 import com.example.mvt_tracker.model.Player;
-import com.example.mvt_tracker.service.GameResultCalculator;
 import com.example.mvt_tracker.service.ResultService;
 import com.example.mvt_tracker.service.enums.Games;
 import com.example.mvt_tracker.service.PlayerDataValidator;
@@ -17,7 +16,7 @@ import java.util.Optional;
 
 @Service
 @Slf4j
-public class BasketballResultServiceImpl implements ResultService, GameResultCalculator {
+public class BasketballResultServiceImpl implements ResultService {
     private final PlayerDao playerDao;
     private final PlayerDataValidator namingValidator;
     private Map<String, Integer> teamScore;

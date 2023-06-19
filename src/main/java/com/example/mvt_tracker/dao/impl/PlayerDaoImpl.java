@@ -27,7 +27,13 @@ public class PlayerDaoImpl implements PlayerDao {
 
     @Override
     public void editRatingPointsByNickname(String nickname, int ratingPoints) {
-        players.get(nickname).setRatingPoints(ratingPoints);
+        Player player = players.get(nickname);
+        if (player != null) {
+            player.setRatingPoints(ratingPoints);
+        }
+        else {
+            throw new IllegalArgumentException("Player not found with nickname: " + nickname);
+        }
     }
 
     @Override

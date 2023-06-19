@@ -3,8 +3,7 @@ package com.example.mvt_tracker.service.impl;
 import com.example.mvt_tracker.dao.PlayerDao;
 import com.example.mvt_tracker.exception.IncorrectFormatException;
 import com.example.mvt_tracker.model.Player;
-import com.example.mvt_tracker.service.AbstractResultService;
-import com.example.mvt_tracker.service.BasketballResultService;
+import com.example.mvt_tracker.service.ResultService;
 import com.example.mvt_tracker.util.FormatValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -12,10 +11,11 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @Slf4j
-public class BasketballResultServiceImpl extends AbstractResultService implements BasketballResultService {
+public class BasketballResultServiceImpl implements ResultService {
     private final PlayerDao playerDao;
     private final FormatValidator formatValidator;
     private Map<String, Integer> teamScore;
@@ -38,8 +38,17 @@ public class BasketballResultServiceImpl extends AbstractResultService implement
     @Override
     public void calculateResult(List<String[]> gameData) {
         teamScore = calculateTeamPoints(gameData);
-        String winningTeam = getWinningTeam(teamScore);
-        calculatePlayerPoints(gameData, winningTeam);
+        Optional<String> winningTeam = getWinningTeam(teamScore);
+        winningTeam.ifPresent(team -> calculatePlayerPoints(gameData, team));
+    }
+
+    @Override
+    public Optional<String> getWinningTeam(Map<String, Integer> teamScores) {
+        Optional<Map.Entry<String, Integer>> maxEntry = teamScores.entrySet()
+                .stream()
+                .max(Map.Entry.comparingByValue());
+
+        return maxEntry.map(Map.Entry::getKey);
     }
 
     public void calculatePlayerPoints(List<String[]> gameData, String winningTeam) {

@@ -7,5 +7,9 @@ import java.util.Optional;
 public interface ResultService {
     void calculateResult(List<String[]> gameData);
 
+    String getGame();
+
     Optional<String> getWinningTeam(Map<String, Integer> teamScores);
+
+    void validateFormat(String[] inputRow);
 }

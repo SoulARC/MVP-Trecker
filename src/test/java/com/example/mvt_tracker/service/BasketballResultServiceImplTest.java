@@ -2,9 +2,11 @@ package com.example.mvt_tracker.service;
 
 import com.example.mvt_tracker.dao.PlayerDao;
 import com.example.mvt_tracker.service.impl.BasketballResultServiceImpl;
-import com.example.mvt_tracker.util.FormatValidator;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
+
+
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,13 +16,14 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 
+@SpringBootTest
 public class BasketballResultServiceImplTest {
     private BasketballResultServiceImpl basketballResultService;
 
-    @BeforeEach
-    void setUp() {
+    @Before
+   public void setUp() {
 
-        FormatValidator formatValidatorMock = mock(FormatValidator.class);
+        PlayerDataValidator formatValidatorMock = mock(PlayerDataValidator.class);
         basketballResultService = new BasketballResultServiceImpl(
                 mock(PlayerDao.class),
                 formatValidatorMock
@@ -28,7 +31,7 @@ public class BasketballResultServiceImplTest {
     }
 
     @Test
-    void calculateTeamPoints_ok() {
+    public void calculateTeamPoints_ok() {
         List<String[]> gameData = new ArrayList<>();
         gameData.add(new String[]{ "player 1", "nick1", "4", "Team A", "10", "2", "7" });
         gameData.add(new String[]{ "player 2", "nick2", "8", "Team A", "0", "10", "0" });
@@ -44,7 +47,7 @@ public class BasketballResultServiceImplTest {
     }
 
     @Test
-    void getWinningTeam_ok() {
+    public void getWinningTeam_ok() {
         Map<String, Integer> teamScores = new HashMap<>();
         teamScores.put("Team A", 83);
         teamScores.put("Team B", 88);

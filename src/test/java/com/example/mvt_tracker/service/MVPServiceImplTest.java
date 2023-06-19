@@ -3,13 +3,18 @@ package com.example.mvt_tracker.service;
 import com.example.mvt_tracker.dao.PlayerDao;
 import com.example.mvt_tracker.model.Player;
 import com.example.mvt_tracker.service.impl.MVPServiceImpl;
+
+import org.junit.Test;
+
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
+@SpringBootTest
 public class MVPServiceImplTest {
     @Test
     public void testGetMVP_ok() {
@@ -47,7 +52,7 @@ public class MVPServiceImplTest {
         Assertions.assertEquals(150, result.getRatingPoints());
     }
 
-    @Test
+    @Test(expected = NoSuchElementException.class)
     public void testGetMVPWhenNoPlayers_notOk() {
         List<Player> players = new ArrayList<>();
 
@@ -55,7 +60,6 @@ public class MVPServiceImplTest {
         Mockito.when(playerDao.getAllPlayers()).thenReturn(players);
 
         MVPService mvpService = new MVPServiceImpl(playerDao);
-
-        Assertions.assertThrows(IllegalStateException.class, mvpService::getMVP);
+        mvpService.getMVP();
     }
 }

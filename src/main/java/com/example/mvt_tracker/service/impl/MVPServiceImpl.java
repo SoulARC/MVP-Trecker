@@ -13,6 +13,7 @@ import java.util.List;
 @Slf4j
 public class MVPServiceImpl implements MVPService {
     private final PlayerDao playerDao;
+    private static final String ERROR_MESSAGE = "No MVP player found";
 
     public MVPServiceImpl(PlayerDao playerDao) {
         this.playerDao = playerDao;
@@ -24,8 +25,8 @@ public class MVPServiceImpl implements MVPService {
         Player mvp = calculateMVP(players);
 
         if (mvp == null) {
-            log.error("No MVP player found");
-            throw new IllegalStateException("No MVP player found.");
+            log.error(ERROR_MESSAGE);
+            throw new IllegalStateException(ERROR_MESSAGE);
         }
 
         return mvp;

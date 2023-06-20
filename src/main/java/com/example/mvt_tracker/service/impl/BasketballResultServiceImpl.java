@@ -56,7 +56,7 @@ public class BasketballResultServiceImpl implements ResultService {
     }
 
     @Override
-    public void formatValidation(String[] inputRow) {
+    private void formatValidation(String[] inputRow) {
         if (inputRow.length != BASKETBALL_ROW_COUNT || namingValidator.namingValidation(inputRow)) {
             try {
                 throw new IncorrectFormatException("The file has an incorrect format");
@@ -68,7 +68,7 @@ public class BasketballResultServiceImpl implements ResultService {
     }
 
     @Override
-    public void calculatePlayerPoints(List<String[]> gameData, String winningTeam) {
+    private void calculatePlayerPoints(List<String[]> gameData, String winningTeam) {
         for (String[] playerData : gameData) {
             String teamName = playerData[TEAM_NAME_INDEX];
             String nickname = playerData[NICK_NAME_INDEX];
@@ -89,7 +89,7 @@ public class BasketballResultServiceImpl implements ResultService {
     }
 
     @Override
-    public Map<String, Integer> calculateTeamPoints(List<String[]> gameData) {
+    private Map<String, Integer> calculateTeamPoints(List<String[]> gameData) {
         Map<String, Integer> teamScore = new HashMap<>();
         for (String[] playerData : gameData) {
             formatValidation(playerData);

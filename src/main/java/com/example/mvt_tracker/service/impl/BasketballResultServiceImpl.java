@@ -49,7 +49,7 @@ public class BasketballResultServiceImpl implements ResultService {
         return Games.BASKETBALL.name();
     }
 
-    public Optional<String> getWinningTeam(Map<String, Integer> teamScores) {
+    private Optional<String> getWinningTeam(Map<String, Integer> teamScores) {
         return teamScores.entrySet().stream()
                 .max(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey);

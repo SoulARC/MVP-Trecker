@@ -49,6 +49,7 @@ public class BasketballResultServiceImpl implements ResultService {
         return Games.BASKETBALL.name();
     }
 
+    @Override
     private Optional<String> getWinningTeam(Map<String, Integer> teamScores) {
         return teamScores.entrySet().stream()
                 .max(Map.Entry.comparingByValue())
